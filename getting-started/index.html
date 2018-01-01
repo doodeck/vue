@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>vue.js Playground</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  </head>
+  <body>
+  
+    <div id="app">
+      <p>{{ message }}</p>
+      <span v-once>This will never change: {{ message }}</span>
+
+      <p>Using mustaches: {{ rawHtml }}</p>
+      <p>Using v-html directive: <span v-html="rawHtml"></span></p>
+    </div>
+
+    <script>
+      var app = new Vue({
+        el: '#app',
+        data: {
+          message: 'Hello Vue.js!',
+          rawHtml: '<span style="color: red">This should be red'
+        }
+      });
+    </script>
+
+    <div id="app-2">
+      <span v-bind:title="message">
+        Hover your mouse over me for a few seconds
+        to see my dynamically bound title!
+      </span>
+    </div>
+    <script>
+    var app2 = new Vue({
+      el: '#app-2',
+      data: {
+        message: 'You loaded this page on ' + new Date().toLocaleString()
+      }
+    });
+    </script>
+
+    <div id="app-3">
+      <span v-if="seen">Now you see me</span>
+      <template v-if="Math.random() > 0.5">
+          <div>
+            Now you see me randomly
+          </div>
+          <h1>Yes</h1>
+        </template>
+        <template v-else>
+          <div>
+            Now you don't see me randomly
+          </div>     
+          <h1>No</h1>
+      </template>
+    </div>
+    <script>
+      var app3 = new Vue({
+        el: '#app-3',
+        data: {
+          seen: true
+        }
+      })
+    </script>
+
+    <div id="app-4">
+      <ol>
+        <li v-for="todo in todos">
+          {{ todo.text }}
+        </li>
+      </ol>
+    </div>
+    <script>
+      var app4 = new Vue({
+        el: '#app-4',
+        data: {
+          todos: [
+            { text: 'Learn JavaScript' },
+            { text: 'Learn Vue' },
+            { text: 'Build something awesome' }
+          ]
+        }
+      });
+    </script>
+
+    <div id="app-5">
+      <p>{{ message }}</p>
+      <button v-on:click="reverseMessage">Reverse Message</button>
+    </div>
+    <script>
+      var app5 = new Vue({
+        el: '#app-5',
+        data: {
+          message: 'Hello Vue.js!'
+        },
+        methods: {
+          reverseMessage: function () {
+            this.message = this.message.split('').reverse().join('')
+          }
+        },
+        created: function () { // Don’t use arrow functions on an options property or callback
+          // `this` points to the vm instance
+          console.log('message is: ' + this.message);
+        }
+      });
+    </script>
+
+    <div id="app-6">
+      <p>{{ message }}</p>
+      <input v-model="message">
+    </div>
+    <script>
+      var app6 = new Vue({
+        el: '#app-6',
+        data: {
+          message: 'Hello Vue!'
+        }
+      });
+
+      app6.$watch('message', function (newValue, oldValue) {
+        console.log(oldValue, " => ", newValue);
+        // This callback will be called when `vm.a` changes
+      });
+
+    </script>
+
+    <div id="app-7">
+      <ol>
+        <!--
+          Now we provide each todo-item with the todo object
+          it's representing, so that its content can be dynamic.
+          We also need to provide each component with a "key",
+          which will be explained later.
+        -->
+        <todo-item
+          v-for="item in groceryList"
+          v-bind:todo="item"
+          v-bind:key="item.id">
+        </todo-item>
+      </ol>
+    </div>
+    <script>
+      Vue.component('todo-item', {
+        // The todo-item component now accepts a
+        // "prop", which is like a custom attribute.
+        // This prop is called todo.
+        props: ['todo'],
+        template: '<li>{{ todo.text }}</li>'
+      });
+      var app7 = new Vue({
+        el: '#app-7',
+        data: {
+          groceryList: [
+            { id: 0, text: 'Vegetables' },
+            { id: 1, text: 'Cheese' },
+            { id: 2, text: 'Whatever else humans are supposed to eat' }
+          ]
+        }
+      });
+    </script>
+
+    <div id="app-8">
+      <p>Original message: "{{ message }}"</p>
+      <p>Computed reversed message: "{{ reversedMessage }}"</p>
+      <p>Method reversed message: "{{ reverseMessage() }}"</p>
+    </div>
+    <script>
+      var app8 = new Vue({
+        el: '#app-8',
+        data: {
+          message: 'Hello'
+        },
+        methods: {
+          reverseMessage: function () {
+            return this.message.split('').reverse().join('');
+          }
+        },
+        computed: {
+          // a computed getter
+          reversedMessage: function () {
+            // `this` points to the vm instance
+            return this.message.split('').reverse().join('');
+          }
+        }
+      });
+    </script>
+
+
+  <div id="todo-list-example">
+    <input
+      v-model="newTodoText"
+      v-on:keyup.enter="addNewTodo"
+      placeholder="Add a todo"
+    >
+    <ul v-if="todos.length">
+      <li
+        is="todo-item"
+        v-for="(todo, index) in todos"
+        v-bind:key="todo.id"
+        v-bind:id="todo.id"
+        v-bind:title="todo.title"
+        v-on:remove="todos.splice(index, 1)"
+      ></li>
+    </ul>
+    <p v-else>No todos left!</p>
+  </div>
+  <script>
+    Vue.component('todo-item', {
+      template: '\
+        <li>\
+          {{ id }} - {{ title }}\
+          <button v-on:click="$emit(\'remove\')">X</button>\
+        </li>\
+      ',
+      props: ['title', 'id']
+    });
+
+    new Vue({
+      el: '#todo-list-example',
+      data: {
+        newTodoText: '',
+        todos: [
+          {
+            id: 1,
+            title: 'Do the dishes',
+          },
+          {
+            id: 2,
+            title: 'Take out the trash',
+          },
+          {
+            id: 3,
+            title: 'Mow the lawn'
+          }
+        ],
+        nextTodoId: 4
+      },
+      methods: {
+        addNewTodo: function () {
+          this.todos.push({
+            id: this.nextTodoId++,
+            title: this.newTodoText
+          })
+          this.newTodoText = ''
+        }
+      }
+    });
+  </script>
+
+  </body>
+
+</html>
